@@ -1,0 +1,67 @@
+plugins {
+    id 'java'
+}
+
+group 'com.gatty.demo'
+version '1.0-SNAPSHOT'
+apply from: 'dependencies.gradle' // 导入依赖配置
+
+
+repositories {
+    maven {
+        name "ALIYUN_CENTRAL_URL"
+        url 'https://maven.aliyun.com/nexus/content/repositories/central'
+    }
+    mavenCentral()
+}
+
+dependencies{
+    implementation(lib.'spring-core')
+    implementation(lib.'spring-beans')
+    implementation(lib.'spring-context')
+    implementation(lib.'spring-context-support')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+// 将依赖包复制到lib目录
+task copyJar(type: Copy) {
+    // 清除现有的lib目录
+    delete "$buildDir/libs/lib"
+    from configurations.compileClasspath
+    into "$buildDir/libs/lib"
+}
+
+// 拷贝配置文件
+task copyConf(type: Copy) {
+    // 清除现有的配置目录
+    delete "$buildDir/libs/config"
+    from('src/main/resources')
+    into 'build/libs/config'
+}
+
+// 拷贝配置文件
+task copyBin(type: Copy) {
+    // 清除现有的配置目录
+    delete "$buildDir/libs/bin"
+    from('src/main/scripts')
+    into 'build/libs/bin'
+}
+
+var lib_path=configurations.compileClasspath.files.collect { "lib/$it.name" }.join(' ')
+jar {
+    manifestContentCharset('utf-8')
+    metadataCharset('utf-8')
+    manifest {
+        attributes "Manifest-Version": 1.0,
+                "Created-By": 'Gradle 7.6',
+                "Build-Jdk-Spec": "$sourceCompatibility",
+                "Class-Path": ". ../ $lib_path",
+                "Main-Class": 'com.gatty.demo.Main'
+    }
+    exclude("*.properties")
+}
+
+test {
+    useJUnitPlatform()
+}

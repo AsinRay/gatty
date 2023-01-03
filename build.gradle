@@ -1,0 +1,72 @@
+plugins {
+    id 'java'
+}
+allprojects {
+    repositories {
+        maven {
+            name "ALIYUN_CENTRAL_URL"
+            url 'https://maven.aliyun.com/nexus/content/repositories/central'
+        }
+        mavenCentral()
+    }
+}
+
+apply from: 'dependencies.gradle' // 导入依赖配置
+
+
+group gatty_group
+version gatty_version
+
+def env = System.getProperty("env") ?: 'dev' 		// 获取env环境属性
+var cp=configurations.compileClasspath.files.collect { "lib/$it.name" }.join(' ')
+
+subprojects {
+    apply plugin: 'java' 					// 子模块插件
+    sourceCompatibility = gatty_jdk			// 源代码版本
+    targetCompatibility = gatty_jdk 		// 生成类版本
+
+    dependencies {					// 公共依赖库管理
+        // 以下的配置为JUnit测试相关的依赖库
+        testImplementation(enforcedPlatform(lib.'junit-bom'))
+        testImplementation(lib.'junit-jupiter-api')
+        testImplementation(lib.'junit-vintage-engine')
+        testImplementation(lib.'junit-jupiter-engine')
+        testImplementation(lib.'junit-platform-launcher')
+        testImplementation(lib.'spring-test')
+        // 以下的配置为日志组件的依赖库
+        implementation(lib.'slf4j-api')
+        implementation(lib.'logback-classic')
+        // 以下为netty组件依赖
+        compileOnly(lib.'netty-all')
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+project(":gatty-core") {
+    dependencies{
+        compileOnly(lib.'netty-all')
+        implementation(lib.'spring-core')
+        implementation(lib.'spring-beans')
+        implementation(lib.'spring-context')
+        implementation(lib.'spring-context-support')
+    }
+}
+
+jar {
+    manifestContentCharset('utf-8')
+    metadataCharset('utf-8')
+    manifest {
+        attributes "Manifest-Version": 1.0,
+            "Created-By": 'gatty group',
+            "Build-Jdk-Spec": "$sourceCompatibility"
+    }
+    exclude("*.properties")
+}
+
+test {
+    useJUnitPlatform()
+}

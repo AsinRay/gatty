@@ -1,0 +1,5 @@
+rootProject.name = 'gatty'
+include 'gatty-core'
+include 'gatty-transport'
+include 'gatty-gen'
+
