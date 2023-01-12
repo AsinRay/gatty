@@ -26,6 +26,13 @@ subprojects {
     targetCompatibility = gatty_jdk 		// 生成类版本
 
     dependencies {					// 公共依赖库管理
+        // 以下为netty组件依赖
+        compileOnly(lib.'netty-all')
+
+        // 以下的配置为日志组件的依赖库
+        implementation(lib.'slf4j-api')
+        implementation(lib.'logback-classic')
+
         // 以下的配置为JUnit测试相关的依赖库
         testImplementation(enforcedPlatform(lib.'junit-bom'))
         testImplementation(lib.'junit-jupiter-api')
@@ -33,11 +40,7 @@ subprojects {
         testImplementation(lib.'junit-jupiter-engine')
         testImplementation(lib.'junit-platform-launcher')
         testImplementation(lib.'spring-test')
-        // 以下的配置为日志组件的依赖库
-        implementation(lib.'slf4j-api')
-        implementation(lib.'logback-classic')
-        // 以下为netty组件依赖
-        compileOnly(lib.'netty-all')
+
     }
 }
 
